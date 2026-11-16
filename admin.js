@@ -96,22 +96,60 @@ $("#imp-btn").onclick = async () => {
 };
 
 /* ---------- users ---------- */
+let usersCache = [], learnedCache = {};
+$("#u-form").onsubmit = async e => {
+  e.preventDefault();
+  const id = $("#u-id").value.trim().toLowerCase(), pw = $("#u-pw").value, name = $("#u-name").value.trim(), phone = $("#u-phone").value.trim(), days = +$("#u-days").value || 365;
+  const { data, error } = await sb.rpc("create_student", { p_userid: id, p_password: pw, p_name: name, p_phone: phone, p_days: days });
+  const msg = error ? error.message : data;
+  if (msg !== "ok") { $("#u-msg").innerHTML = `<div class="err">${esc(msg)}</div>`; return; }
+  $("#u-msg").innerHTML = `<div class="ok">User <b>${esc(id)}</b> created, valid ${days} days.</div>`;
+  $("#u-share-text").value = `Welcome to OneWord! 🎉\n\nLogin: https://learn.onewordlearning.com\nUser ID: ${id}\nPassword: ${pw}\n\nOne word, every day. Start with word 1 today!`;
+  $("#u-share").classList.remove("hidden");
+  $("#u-copy").onclick = () => navigator.clipboard.writeText($("#u-share-text").value).then(() => alert("Copied"));
+  $("#u-id").value = ""; $("#u-pw").value = ""; $("#u-name").value = ""; $("#u-phone").value = "";
+  loadUsers();
+};
 async function loadUsers() {
   const [{ data: users }, { data: prog }] = await Promise.all([
     sb.from("profiles").select("*").order("created_at", { ascending: false }),
     sb.from("word_progress").select("user_id")
   ]);
-  const learned = {}; (prog || []).forEach(r => learned[r.user_id] = (learned[r.user_id] || 0) + 1);
-  $("#u-table tbody").innerHTML = (users || []).map(u => `<tr data-id="${u.id}">
-    <td><b>${esc((u.email || "").split("@")[0])}</b>${u.is_admin ? ' <span class="pill">admin</span>' : ""}</td>
-    <td>${esc(u.full_name)}<br><span class="muted">${esc(u.phone)}</span></td>
-    <td>${u.start_date || ""}</td><td>${u.streak || 0}</td><td>${learned[u.id] || 0}</td>
-    <td><input type="date" value="${u.paid_until || ""}" data-field="paid_until"></td>
-    <td><input type="checkbox" ${u.paid ? "checked" : ""} data-field="paid"></td></tr>`).join("");
-  $("#u-table").onchange = async e => {
-    const inp = e.target, tr = inp.closest("tr"); if (!inp.dataset.field) return;
-    const val = inp.type === "checkbox" ? inp.checked : (inp.value || null);
-    const { error } = await sb.from("profiles").update({ [inp.dataset.field]: val }).eq("id", tr.dataset.id);
-    tr.style.background = error ? "#fde8e6" : "#e3f7f3"; setTimeout(() => tr.style.background = "", 800);
-  };
+  usersCache = users || []; learnedCache = {};
+  (prog || []).forEach(r => learnedCache[r.user_id] = (learnedCache[r.user_id] || 0) + 1);
+  renderUsers();
 }
+function renderUsers() {
+  const q = ($("#u-search").value || "").toLowerCase();
+  const list = usersCache.filter(u => !q || (u.email || "").includes(q) || (u.full_name || "").toLowerCase().includes(q) || (u.phone || "").includes(q));
+  $("#u-count").textContent = usersCache.length;
+  $("#u-table tbody").innerHTML = list.map(u => { const uid = (u.email || "").split("@")[0]; return `<tr data-id="${u.id}" data-uid="${esc(uid)}">
+    <td><b>${esc(uid)}</b>${u.is_admin ? ' <span class="pill">admin</span>' : ""}</td>
+    <td>${esc(u.full_name)}<br><span class="muted">${esc(u.phone)}</span></td>
+    <td>${u.start_date || ""}</td><td>${u.streak || 0}</td><td>${learnedCache[u.id] || 0}</td>
+    <td><input type="date" value="${u.paid_until || ""}" data-field="paid_until"></td>
+    <td><input type="checkbox" ${u.paid ? "checked" : ""} data-field="paid"></td>
+    <td style="white-space:nowrap"><button class="btn small ghost" data-reset="1">Reset pw</button>${u.is_admin ? "" : `<button class="btn small ghost" data-del="1" style="color:#b42318">Delete</button>`}</td></tr>`; }).join("");
+}
+$("#u-search").oninput = renderUsers;
+$("#u-table").onchange = async e => {
+  const inp = e.target, tr = inp.closest("tr"); if (!inp.dataset.field) return;
+  const val = inp.type === "checkbox" ? inp.checked : (inp.value || null);
+  const { error } = await sb.from("profiles").update({ [inp.dataset.field]: val }).eq("id", tr.dataset.id);
+  tr.style.background = error ? "#fde8e6" : "#e3f7f3"; setTimeout(() => tr.style.background = "", 800);
+};
+$("#u-table").onclick = async e => {
+  const tr = e.target.closest("tr"); if (!tr) return;
+  const uid = tr.dataset.uid;
+  if (e.target.closest("[data-reset]")) {
+    const pw = prompt(`New password for ${uid} (min 6 characters):`); if (!pw) return;
+    const { data, error } = await sb.rpc("reset_student_password", { p_userid: uid, p_password: pw });
+    alert(error ? error.message : data === "ok" ? `Password changed for ${uid}` : data);
+  }
+  if (e.target.closest("[data-del]")) {
+    if (!confirm(`Delete ${uid} and all their progress? This cannot be undone.`)) return;
+    const { data, error } = await sb.rpc("delete_student", { p_userid: uid });
+    if (error || data !== "ok") return alert(error ? error.message : data);
+    loadUsers();
+  }
+};

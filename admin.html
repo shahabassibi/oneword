@@ -76,10 +76,24 @@
 
       <!-- USERS -->
       <section id="tab-users" class="hidden">
-        <div class="card">
-          <p class="muted">To create a login: Supabase → Authentication → Users → Add user → email <b>userid@onewordlearning.com</b>, password, tick Auto Confirm. The user appears here after they sign in once (or immediately if the profile trigger ran). Change dates or deactivate below.</p>
-        </div>
-        <table id="u-table"><thead><tr><th>User</th><th>Name / phone</th><th>Started</th><th>Streak</th><th>Learned</th><th>Paid till</th><th>Active</th></tr></thead><tbody></tbody></table>
+        <form id="u-form" class="card">
+          <h2>Create a student login</h2>
+          <div id="u-msg"></div>
+          <div class="grid2">
+            <div class="field"><label>User ID (letters/numbers, no spaces)</label><input id="u-id" required pattern="[a-z0-9._-]+" autocapitalize="none" placeholder="e.g. sha001"></div>
+            <div class="field"><label>Password (min 6)</label><input id="u-pw" required minlength="6" placeholder="e.g. Word@2026"></div>
+            <div class="field"><label>Full name</label><input id="u-name"></div>
+            <div class="field"><label>Phone / WhatsApp</label><input id="u-phone"></div>
+            <div class="field"><label>Validity (days)</label><input id="u-days" type="number" value="365" min="1"></div>
+          </div>
+          <button class="btn" type="submit">Create user</button>
+          <div id="u-share" class="hidden" style="margin-top:12px">
+            <textarea class="search" rows="5" readonly id="u-share-text"></textarea>
+            <button class="btn outline" type="button" id="u-copy">📋 Copy welcome message</button>
+          </div>
+        </form>
+        <div class="card"><div class="row"><h2 style="margin:0">Students (<span id="u-count">0</span>)</h2><input class="search" id="u-search" placeholder="Search" style="max-width:240px;margin:0"></div></div>
+        <table id="u-table"><thead><tr><th>User</th><th>Name / phone</th><th>Started</th><th>Streak</th><th>Learned</th><th>Paid till</th><th>Active</th><th></th></tr></thead><tbody></tbody></table>
       </section>
     </div>
   </main>
