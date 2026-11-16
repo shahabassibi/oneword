@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>OneWord Admin</title>
+<link rel="icon" href="logo.jpg">
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="config.js"></script>
+</head>
+<body class="admin">
+<div class="app" style="max-width:none">
+  <header class="top">
+    <div class="brand"><img src="logo.jpg" alt=""> one<span>word</span> &nbsp;<span class="pill">Admin</span></div>
+    <div><a class="icon-btn" href="index.html">← App</a><button class="icon-btn" id="logout">Sign out</button></div>
+  </header>
+  <main>
+    <div id="denied" class="card hidden center"><p>Admin access only. <a href="index.html">Go to app</a></p></div>
+    <div id="panel" class="hidden">
+      <div class="tabs">
+        <button data-tab="words" class="active">Words</button>
+        <button data-tab="add">Add word</button>
+        <button data-tab="import">Bulk import</button>
+        <button data-tab="users">Users</button>
+      </div>
+
+      <!-- WORDS LIST -->
+      <section id="tab-words">
+        <div class="card"><div class="row"><h2 style="margin:0">All words (<span id="w-count">0</span>)</h2><input class="search" id="w-search" placeholder="Search" style="max-width:240px;margin:0"></div></div>
+        <table id="w-table"><thead><tr><th>Day</th><th>Word</th><th>Meaning</th><th>Malayalam</th><th>Quiz</th><th></th></tr></thead><tbody></tbody></table>
+      </section>
+
+      <!-- ADD / EDIT -->
+      <section id="tab-add" class="hidden">
+        <form id="w-form" class="card">
+          <input type="hidden" id="f-id">
+          <div id="f-msg"></div>
+          <div class="grid2">
+            <div class="field"><label>Day number</label><input id="f-day" type="number" min="1" required></div>
+            <div class="field"><label>Word</label><input id="f-word" required></div>
+          </div>
+          <div class="field"><label>Meaning</label><input id="f-meaning" required></div>
+          <div class="field"><label>Malayalam</label><input id="f-malayalam"></div>
+          <div class="field"><label>Usage note</label><textarea id="f-usage" rows="2"></textarea></div>
+          <div class="field"><label>Example 1</label><input id="f-ex1"></div>
+          <div class="field"><label>Example 2</label><input id="f-ex2"></div>
+          <div class="field"><label>Example 3</label><input id="f-ex3"></div>
+          <div class="field"><label>Audio URL (optional MP3)</label><input id="f-audio"></div>
+          <h2 style="margin:16px 0 8px">Quiz question</h2>
+          <div class="field"><label>Question</label><input id="f-q"></div>
+          <div class="grid2">
+            <div class="field"><label>Option A</label><input id="f-a"></div>
+            <div class="field"><label>Option B</label><input id="f-b"></div>
+            <div class="field"><label>Option C</label><input id="f-c"></div>
+            <div class="field"><label>Option D</label><input id="f-d"></div>
+          </div>
+          <div class="field"><label>Correct option</label><select id="f-correct"><option value="a">A</option><option value="b">B</option><option value="c">C</option><option value="d">D</option></select></div>
+          <button class="btn" type="submit">Save word</button>
+          <button class="btn ghost" type="button" id="f-reset">Clear form</button>
+        </form>
+      </section>
+
+      <!-- IMPORT -->
+      <section id="tab-import" class="hidden">
+        <div class="card">
+          <h2>Paste from Google Sheets</h2>
+          <p class="muted" style="margin-bottom:10px">Columns in this exact order (header row optional):<br>
+          <code>day, word, meaning, malayalam, usage, example1, example2, example3, quiz_question, option_a, option_b, option_c, option_d, correct</code><br>
+          Select the rows in Sheets, copy, paste here. Existing day numbers are updated.</p>
+          <textarea id="imp-text" class="search" rows="12" placeholder="Paste here…"></textarea>
+          <div id="imp-msg"></div>
+          <button class="btn" id="imp-btn">Import</button>
+        </div>
+      </section>
+
+      <!-- USERS -->
+      <section id="tab-users" class="hidden">
+        <div class="card">
+          <p class="muted">To create a login: Supabase → Authentication → Users → Add user → email <b>userid@onewordlearning.com</b>, password, tick Auto Confirm. The user appears here after they sign in once (or immediately if the profile trigger ran). Change dates or deactivate below.</p>
+        </div>
+        <table id="u-table"><thead><tr><th>User</th><th>Name / phone</th><th>Started</th><th>Streak</th><th>Learned</th><th>Paid till</th><th>Active</th></tr></thead><tbody></tbody></table>
+      </section>
+    </div>
+  </main>
+</div>
+<script src="admin.js"></script>
+</body>
+</html>

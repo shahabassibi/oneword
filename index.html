@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>OneWord — One Word. Every Day.</title>
+<meta name="theme-color" content="#1E63D8">
+<link rel="icon" href="logo.jpg">
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="config.js"></script>
+</head>
+<body>
+
+<!-- ============ LOGIN ============ -->
+<section id="view-auth" class="auth hidden">
+  <img src="logo.jpg" alt="OneWord">
+  <h1>Welcome back</h1>
+  <p>Sign in with the user ID you received.</p>
+  <form id="login-form">
+    <div id="login-err" class="err hidden"></div>
+    <div class="field"><label>User ID</label><input id="login-id" autocomplete="username" autocapitalize="none" placeholder="e.g. sha001" required></div>
+    <div class="field"><label>Password</label><input id="login-pw" type="password" autocomplete="current-password" required></div>
+    <button class="btn" type="submit">Sign in</button>
+  </form>
+  <p style="margin-top:22px;font-size:13px">Don't have an ID? <a id="buy-link" href="#">Get OneWord on WhatsApp</a></p>
+</section>
+
+<!-- ============ EXPIRED ============ -->
+<section id="view-expired" class="auth hidden">
+  <img src="logo.jpg" alt="OneWord">
+  <h1>Subscription ended</h1>
+  <p>Your OneWord access has expired. Renew to keep learning.</p>
+  <a id="renew-link" class="btn" style="max-width:360px" href="#">Renew on WhatsApp</a>
+  <button class="btn ghost" id="expired-logout" style="margin-top:12px">Sign out</button>
+</section>
+
+<!-- ============ APP ============ -->
+<div id="app" class="app hidden">
+  <header class="top">
+    <div class="brand"><img src="logo.jpg" alt=""> one<span>word</span></div>
+    <div><a id="admin-link" class="icon-btn hidden" href="admin.html">Admin</a><button class="icon-btn" id="logout">Sign out</button></div>
+  </header>
+
+  <main>
+    <!-- TODAY -->
+    <section id="view-today"></section>
+    <!-- QUIZ -->
+    <section id="view-quiz" class="hidden"></section>
+    <!-- DASHBOARD -->
+    <section id="view-dash" class="hidden"></section>
+    <!-- WORD BANK -->
+    <section id="view-bank" class="hidden"></section>
+  </main>
+
+  <nav class="bottom">
+    <button data-view="today" class="active"><span class="ico">📖</span>Today</button>
+    <button data-view="dash"><span class="ico">📊</span>Progress</button>
+    <button data-view="bank"><span class="ico">📚</span>Word Bank</button>
+  </nav>
+</div>
+
+<div id="modal-root"></div>
+<script src="app.js"></script>
+</body>
+</html>
